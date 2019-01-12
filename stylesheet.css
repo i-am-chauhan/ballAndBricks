@@ -5,9 +5,13 @@
 }
 
 .board{
-  height: 570px;
-  width: 800px;
   border: 1px solid black;
   position: relative;
   margin: 0 auto;
+}
+
+.circle{
+  border-radius: 50%;
+  background-color: brown;
+  position: absolute;
 }
