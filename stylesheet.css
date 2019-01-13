@@ -16,3 +16,9 @@
   background-color: brown;
   position: absolute;
 }
+
+.brick{
+  border: 1px solid black;
+  background-color: brown;
+  position: absolute;
+}

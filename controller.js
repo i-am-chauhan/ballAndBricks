@@ -1,4 +1,7 @@
 const applyPixel = (count) => count + "px";
+const convertPositionToId = (positionX, positionY) => {
+  return `brickX${positionX}Y${positionY}`;
+}
 
 const createWallDiv = function (document) {
   const main = document.getElementById('main');
@@ -72,13 +75,57 @@ const moveBall = function (document, game) {
   }, 10)
 }
 
+const createBrickDiv = function (document, id) {
+  const screen = document.getElementById('screen');
+  let div = document.createElement('div');
+  div.id = id;
+  div.className = 'brick';
+  screen.appendChild(div);
+}
+
+const drawBricks = function (document, brick) {
+  let id = convertPositionToId(brick.position.X, brick.position.Y);
+  let div = document.getElementById(id);
+  div.style.height = brick.height;
+  div.style.width = brick.width;
+  div.style.left = brick.position.X;
+  div.style.bottom = brick.position.Y;
+}
+
+const createDivAndDraw = function (height, width, positionX, positionY) {
+  let position = new Position(positionX, positionY);
+  let brick = new Bricks(height, width, position);
+  createBrickDiv(document, convertPositionToId(positionX, positionY));
+  drawBricks(document, brick);
+  return brick;
+}
+
+const createAndDrawBricks = function (wall, noOfRows, noOfBricksInRow) {
+  const width = wall.width / noOfBricksInRow;
+  const height = wall.height / (4 * noOfRows);
+  let positionX = 0;
+  let positionY = wall.height - height;
+  let bricks = new Array(noOfRows).fill(1).reduce((list, some) => {
+    let bricksInRow = new Array(noOfBricksInRow).fill(some).map(() => {
+      let brick = createDivAndDraw(height, width, positionX, positionY);
+      positionX += width;
+      if (positionX >= wall.width) positionX = 0;
+      return brick;
+    });
+    positionY = positionY - height;
+    return list.concat(bricksInRow);
+  }, [])
+  return bricks;
+}
+
 const initialise = function () {
   const wall = new Wall(600, 800);
-  const paddle = new Paddle(20, 120, new Position(340, 1),20);
+  const paddle = new Paddle(20, 120, new Position(340, 1), 20);
   const velocity = new Velocity(3, -3);
   const ball = new Ball(20, new Position(380, 20), velocity);
-  const game = new Game(ball, paddle, wall);
   createElements(document, paddle, ball, wall);
+  const bricks = createAndDrawBricks(wall, 5, 10);
+  const game = new Game(ball, paddle, wall, bricks);
   const screen = document.getElementById('screen');
   screen.onkeydown = movePaddle.bind(null, document, game);
   moveBall(document, game);

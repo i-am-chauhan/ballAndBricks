@@ -73,6 +73,14 @@ class Ball {
   }
 }
 
+class Bricks {
+  constructor(height, width,position){
+    this.height = height;
+    this.width = width;
+    this.position = position;
+  }
+}
+
 class Game {
   constructor(ball, paddle, wall) {
     this.ball = ball;
