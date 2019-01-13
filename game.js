@@ -3,53 +3,73 @@ class Wall {
     this.height = height;
     this.width = width;
   }
+
+  changeVelocity(velocity) {
+    velocity.negateX();
+  }
+}
+
+class Position {
+  constructor(X, Y) {
+    this.X = X;
+    this.Y = Y;
+  }
+
+  setPositionX(position) {
+    this.X = position;
+  }
+
+  setPositionY(position) {
+    this.Y = position;
+  }
 }
 
 class Paddle {
-  constructor(height, width, left, bottom, speed) {
+  constructor(height, width, position, speed) {
     this.height = height;
     this.width = width;
-    this.left = left;
-    this.bottom = bottom;
+    this.position = position;
     this.speed = speed;
   }
 
   moveLeft() {
-    this.left = this.left - this.speed;
+    this.position.X = this.position.X - this.speed;
   }
 
   moveRight() {
-    this.left = this.left + this.speed;
+    this.position.X = this.position.X + this.speed;
+  }
+
+  changeVelocity(velocity) {
+    velocity.negateY();
   }
 }
 
-
 class Velocity {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
+  constructor(X, Y) {
+    this.X = X;
+    this.Y = Y;
   }
 
   negateX() {
-    this.x = -1 * this.x;
+    this.X = -1 * this.X;
   }
 
   negateY() {
-    this.y = -1 * this.y;
+    this.Y = -1 * this.Y;
   }
 }
 
 class Ball {
-  constructor(radius, left, bottom, velocity) {
+  constructor(radius, position, velocity) {
     this.radius = radius;
-    this.left = left;
-    this.bottom = bottom;
+    this.position = position;
     this.velocity = velocity;
   }
 
   moveBall() {
-    this.left += this.velocity.x;
-    this.bottom += this.velocity.y;
+    this.position.X += this.velocity.X;
+    this.position.Y += this.velocity.Y;
   }
 }
 
@@ -60,12 +80,35 @@ class Game {
     this.wall = wall;
   }
 
-  checkCollideAndGetNewVelocity() {
-    const maxLeftPosition = this.wall.width - 2*this.ball.radius;
-    const maxBottomPosition = this.wall.height - 2*this.ball.radius;
-    if (this.ball.left >= maxLeftPosition) this.ball.velocity.negateX();
-    if (this.ball.left <= 0) this.ball.velocity.negateX();
-    if (this.ball.bottom >= maxBottomPosition) this.ball.velocity.negateY();
-    if (this.ball.bottom <= 0) this.ball.velocity.negateY();
+  isBallCollideWithWall() {
+    const maxLeftPosition = this.wall.width - 2 * this.ball.radius;
+    return this.ball.position.X >= maxLeftPosition || this.ball.position.X <= 0;
+  }
+
+  isBallInRangeOfPaddle() {
+    const collidalRange = this.paddle.position.X + this.paddle.width;
+    const collidalPositionOfBall = this.ball.position.X + this.ball.radius;
+    return this.paddle.position.X <= collidalPositionOfBall
+      && collidalPositionOfBall <= collidalRange;
+  }
+
+  isBallCollideWithPaddle() {
+    const maxCollidalLength = this.paddle.position.Y + this.paddle.height;
+    return this.ball.position.Y <= maxCollidalLength && this.isBallInRangeOfPaddle();
+  }
+
+  validateBallMovement() {
+    const maxBottomPosition = this.wall.height - 2 * this.ball.radius;
+    if (this.isBallCollideWithWall()) this.wall.changeVelocity(this.ball.velocity);
+    if (this.ball.position.Y >= maxBottomPosition) this.ball.velocity.negateY();
+    if (this.isBallCollideWithPaddle()) this.paddle.changeVelocity(this.ball.velocity);
+  }
+
+  validatePaddlePosition() {
+    const maxLeftPosition = this.wall.width - this.paddle.width;
+    if (this.paddle.position.X <= 0)
+      this.paddle.position.setPositionX(0);
+    if (this.paddle.position.X >= maxLeftPosition)
+      this.paddle.position.setPositionX(maxLeftPosition);
   }
 }

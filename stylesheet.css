@@ -2,6 +2,7 @@
   border: 1px solid black;
   background-color: black;
   position: absolute;
+  border-radius: 10px;
 }
 
 .board{
