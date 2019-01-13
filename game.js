@@ -52,3 +52,20 @@ class Ball {
     this.bottom += this.velocity.y;
   }
 }
+
+class Game {
+  constructor(ball, paddle, wall) {
+    this.ball = ball;
+    this.paddle = paddle;
+    this.wall = wall;
+  }
+
+  checkCollideAndGetNewVelocity() {
+    const maxLeftPosition = this.wall.width - 2*this.ball.radius;
+    const maxBottomPosition = this.wall.height - 2*this.ball.radius;
+    if (this.ball.left >= maxLeftPosition) this.ball.velocity.negateX();
+    if (this.ball.left <= 0) this.ball.velocity.negateX();
+    if (this.ball.bottom >= maxBottomPosition) this.ball.velocity.negateY();
+    if (this.ball.bottom <= 0) this.ball.velocity.negateY();
+  }
+}

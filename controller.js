@@ -32,8 +32,7 @@ const drawPaddle = function (document, paddle) {
   paddleDiv.style.bottom = applyPixel(paddle.bottom);
 }
 
-const move = function (document, paddle) {
-  console.log(event);
+const movePaddle = function (document, paddle) {
   if (event.key == "ArrowRight") paddle.moveRight();
   if (event.key == "ArrowLeft") paddle.moveLeft();
   drawPaddle(document, paddle);
@@ -55,8 +54,7 @@ const createBallDiv = function (document) {
   screen.appendChild(ballDiv);
 }
 
-const createElements = function (document, paddle, ball) {
-  const wall = new Wall(570, 800);
+const createElements = function (document, paddle, ball, wall) {
   createWallDiv(document);
   createPaddleDiv(document);
   createBallDiv(document);
@@ -66,16 +64,19 @@ const createElements = function (document, paddle, ball) {
 }
 
 const initialise = function () {
-  const paddle = new Paddle(20, 100, 350, 1, 15);
-  const velocity = new Velocity(1, 1);
-  const ball = new Ball(20, 390, 22, velocity);
-  createElements(document, paddle, ball);
+  const wall = new Wall(570, 790);
+  const paddle = new Paddle(20, 100, 350, 1, 20);
+  const velocity = new Velocity(3, 3);
+  const ball = new Ball(20, 380, 22, velocity);
+  const game = new Game(ball, paddle, wall);
+  createElements(document, paddle, ball, wall);
   const screen = document.getElementById('screen');
-  screen.onkeydown = move.bind(null, document, paddle);
+  screen.onkeydown = movePaddle.bind(null, document, paddle);
   setInterval(() => {
-    ball.moveBall()
-    drawBall(document, ball);
-  }, 10)
+    game.checkCollideAndGetNewVelocity()
+    game.ball.moveBall()
+    drawBall(document, game.ball);
+  }, 20)
 }
 
 window.onload = () => {
