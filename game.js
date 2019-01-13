@@ -73,19 +73,24 @@ class Ball {
   }
 }
 
-class Bricks {
-  constructor(height, width,position){
+class Brick {
+  constructor(height, width, position) {
     this.height = height;
     this.width = width;
     this.position = position;
   }
+
+  changeVelocity(velocity) {
+    velocity.negateY();
+  }
 }
 
 class Game {
-  constructor(ball, paddle, wall) {
+  constructor(ball, paddle, wall, bricks) {
     this.ball = ball;
     this.paddle = paddle;
     this.wall = wall;
+    this.bricks = bricks;
   }
 
   isBallCollideWithWall() {
@@ -93,23 +98,23 @@ class Game {
     return this.ball.position.X >= maxLeftPosition || this.ball.position.X <= 0;
   }
 
-  isBallInRangeOfPaddle() {
-    const collidalRange = this.paddle.position.X + this.paddle.width;
+  isBallInRangeOf(element) {
+    const collidalRange = element.position.X + element.width;
     const collidalPositionOfBall = this.ball.position.X + this.ball.radius;
-    return this.paddle.position.X <= collidalPositionOfBall
+    return element.position.X <= collidalPositionOfBall
       && collidalPositionOfBall <= collidalRange;
   }
 
-  isBallCollideWithPaddle() {
+  isBallCollidedWithPaddle() {
     const maxCollidalLength = this.paddle.position.Y + this.paddle.height;
-    return this.ball.position.Y <= maxCollidalLength && this.isBallInRangeOfPaddle();
+    return this.ball.position.Y <= maxCollidalLength && this.isBallInRangeOf(this.paddle);
   }
 
   validateBallMovement() {
     const maxBottomPosition = this.wall.height - 2 * this.ball.radius;
     if (this.isBallCollideWithWall()) this.wall.changeVelocity(this.ball.velocity);
     if (this.ball.position.Y >= maxBottomPosition) this.ball.velocity.negateY();
-    if (this.isBallCollideWithPaddle()) this.paddle.changeVelocity(this.ball.velocity);
+    if (this.isBallCollidedWithPaddle()) this.paddle.changeVelocity(this.ball.velocity);
   }
 
   validatePaddlePosition() {
@@ -118,5 +123,26 @@ class Game {
       this.paddle.position.setPositionX(0);
     if (this.paddle.position.X >= maxLeftPosition)
       this.paddle.position.setPositionX(maxLeftPosition);
+  }
+
+  isBrickCollidedWithBall(brick) {
+    const maxCollidalLength = this.ball.position.Y + 2*this.ball.radius;
+    return maxCollidalLength >= brick.position.Y && this.isBallInRangeOf(brick);
+  }
+
+  getInfoOfballBrickCollision() {
+    let validatedBricks = { remainingBricks: [] };
+    let collisionData = { isCollided: false };
+    this.bricks.forEach(function (brick) {
+      if (this.isBrickCollidedWithBall(brick)) {
+        validatedBricks.removedBrick = brick;
+        validatedBricks.removedBrick.changeVelocity(this.ball.velocity);
+        collisionData = { isCollided: true, brick: validatedBricks.removedBrick };
+        return;
+      }
+      validatedBricks.remainingBricks.push(brick);
+    }, this);
+    this.bricks = validatedBricks.remainingBricks
+    return collisionData;
   }
 }

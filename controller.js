@@ -67,9 +67,18 @@ const createElements = function (document, paddle, ball, wall) {
   drawBall(document, ball);
 }
 
+const removeBrick = function(document, brick){
+  const screen = document.getElementById('screen');
+  const brickId = convertPositionToId(brick.position.X, brick.position.Y);
+  const brickDiv = document.getElementById(brickId);
+  brickDiv.parentNode.removeChild(brickDiv);
+ }
+
 const moveBall = function (document, game) {
   setInterval(() => {
     game.validateBallMovement();
+    let { isCollided, brick } = game.getInfoOfballBrickCollision();
+    if(isCollided) removeBrick(document, brick);
     game.ball.moveBall();
     drawBall(document, game.ball);
   }, 10)
@@ -94,7 +103,7 @@ const drawBricks = function (document, brick) {
 
 const createDivAndDraw = function (height, width, positionX, positionY) {
   let position = new Position(positionX, positionY);
-  let brick = new Bricks(height, width, position);
+  let brick = new Brick(height, width, position);
   createBrickDiv(document, convertPositionToId(positionX, positionY));
   drawBricks(document, brick);
   return brick;
@@ -124,7 +133,7 @@ const initialise = function () {
   const velocity = new Velocity(3, -3);
   const ball = new Ball(20, new Position(380, 20), velocity);
   createElements(document, paddle, ball, wall);
-  const bricks = createAndDrawBricks(wall, 5, 10);
+  const bricks = createAndDrawBricks(wall, 10, 10);
   const game = new Game(ball, paddle, wall, bricks);
   const screen = document.getElementById('screen');
   screen.onkeydown = movePaddle.bind(null, document, game);
