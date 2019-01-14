@@ -39,14 +39,14 @@ class Game {
   }
 
   isBrickCollidedWithBall(brick) {
-    const maxCollidalLength = this.ball.position.Y + 2*this.ball.radius;
+    const maxCollidalLength = this.ball.position.Y + 2 * this.ball.radius;
     return maxCollidalLength >= brick.position.Y && this.isBallInRangeOf(brick);
   }
 
   getInfoOfballBrickCollision() {
     let validatedBricks = { remainingBricks: [] };
     let collisionData = { isCollided: false };
-    this.bricks.forEach(function (brick) {
+    this.bricks.list.forEach(function (brick) {
       if (this.isBrickCollidedWithBall(brick)) {
         validatedBricks.removedBrick = brick;
         validatedBricks.removedBrick.changeVelocity(this.ball.velocity);
@@ -55,7 +55,7 @@ class Game {
       }
       validatedBricks.remainingBricks.push(brick);
     }, this);
-    this.bricks = validatedBricks.remainingBricks
+    this.bricks.list = validatedBricks.remainingBricks;
     return collisionData;
   }
 }

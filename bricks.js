@@ -9,3 +9,13 @@ class Brick {
     velocity.negateY();
   }
 }
+
+class Bricks {
+  constructor(){
+    this.list = [];
+  }
+
+  inject(brick){
+    this.list.push(brick);
+  }
+}
